@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Travel Itinerary</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      .itinerary-container {
+        max-width: 800px;
+        margin: 20px auto;
+        background-color: white;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+      }
+      .itinerary-header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .itinerary-header h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .details {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 16px;
+      }
+      .details p {
+        margin: 5px 0;
+      }
+      .day {
+        display: grid;
+        grid-template-columns: 100px auto;
+        margin-bottom: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+      }
+      .day-header {
+        background-color: #f7f7f7;
+        padding: 15px;
+        font-weight: bold;
+        font-size: 18px;
+        text-align: center;
+        border-right: 1px solid #e0e0e0;
+      }
+      .day-content {
+        padding: 15px;
+      }
+      .time-slot {
+        margin-bottom: 10px;
+      }
+      .time-slot h3 {
+        margin: 5px 0;
+        font-size: 16px;
+        color: #333;
+      }
+      .time-slot p {
+        margin: 5px 0;
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="itinerary-container">
+      <div class="itinerary-header">
+        <h1>Travel Itinerary</h1>
+        <p>(Paris, France — 5 Day Trip)</p>
+      </div>
+      <div class="details">
+        <p>Flight #: <span id="flight-number">1234 56789</span></p>
+        <p>
+          Hotel Address:
+          <span id="hotel-address">123 Anywhere St, Any City ST 12345</span>
+        </p>
+        <p>Arrival: <span id="arrival-date">June 1, 2023</span></p>
+        <p>Departure: <span id="departure-date">June 5, 2023</span></p>
+      </div>
+
+      <!-- Day 1 -->
+      <div class="day">
+        <div class="day-header">DAY 1</div>
+        <div class="day-content">
+          <div class="time-slot">
+            <h3>Morning:</h3>
+            <p>Arrival & hotel check-in</p>
+          </div>
+          <div class="time-slot">
+            <h3>Afternoon:</h3>
+            <p>Visit the Eiffel Tower & grab some lunch</p>
+          </div>
+          <div class="time-slot">
+            <h3>Evening:</h3>
+            <p>Explore the Louvre Museum & have dinner</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Repeat for other days dynamically as needed -->
+      <!-- Example: Day 2 -->
+      <div class="day">
+        <div class="day-header">DAY 2</div>
+        <div class="day-content">
+          <div class="time-slot">
+            <h3>Morning:</h3>
+            <p>
+              Have breakfast & stroll through Montmartre / visit the Sacré-Coeur
+              Basilica
+            </p>
+          </div>
+          <div class="time-slot">
+            <h3>Afternoon:</h3>
+            <p>
+              Visit the Notre-Dame Cathedral and Île de la Cité & have lunch
+            </p>
+          </div>
+          <div class="time-slot">
+            <h3>Evening:</h3>
+            <p>Enjoy a dinner cruise on the Seine River</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Continue for all other days -->
+    </div>
+  </body>
+</html>

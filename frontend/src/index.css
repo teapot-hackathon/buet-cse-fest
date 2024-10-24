@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Raleway", sans-serif;
+}
+body {
+  background-color: #fff;
+}
+
+.leaflet-container {
+  height: 600px;
+  width: 80dvw;
+  margin: 0 auto;
+}
+
+.sidebar {
+  transition: all 0.3s ease-in-out;
+}
