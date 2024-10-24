@@ -1,3 +1,4 @@
+from mapScraper import placesCrawlerV2
 from placesCrawlerV2 import search
 
 if __name__ == "__main__":
