@@ -1,4 +1,5 @@
-import placesCrawlerV2
+from mapScraper import placesCrawlerV2
+from placesCrawlerV2 import search
 
 if __name__ == "__main__":
     try:
