@@ -1,3 +1,7 @@
+import logging
+logging.getLogger('websockets').setLevel(logging.ERROR)
+logging.getLogger('pyppeteer').setLevel(logging.ERROR)
+
 from requests_html import HTMLSession
 from urllib.parse import unquote
 import json
@@ -6,9 +10,11 @@ import os
 def search(query):
     result = []
     PAGINATION = 0
+
+    # Set Chrome path using environment variable if available, else fallback
+    chrome_path = os.getenv("CHROME_PATH", r"C:\Program Files\Google\Chrome\Application\chrome.exe")
     
-    # Set environment variable and browser args
-    chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"  # Adjust this path
+    # Ensure Chromium revision is set
     os.environ["PYPPETEER_CHROMIUM_REVISION"] = "1045629"
     
     # Initialize session
@@ -24,13 +30,12 @@ def search(query):
         while True:
             url = f'https://www.google.com/localservices/prolist?hl=en&ssta=1&q={query}&oq={query}&src=2&lci={PAGINATION}'
             r = session.get(url)
-            # Removed browser_args parameter
             r.html.render(timeout=30)
 
             data_script = r.html.find('#yDmH0d > script:nth-child(12)')[0].text
-            data_script = data_script.replace("AF_initDataCallback(","").replace("'","").replace("\n","")[:-2]
-            data_script = data_script.replace("{key:","{\"key\":").replace(", hash:",", \"hash\":").replace(", data:",", \"data\":").replace(", sideChannel:",", \"sideChannel\":")
-            data_script = data_script.replace("\"key\": ds:","\"key\": \"ds: ").replace(", \"hash\":","\",\"hash\":")
+            data_script = data_script.replace("AF_initDataCallback(", "").replace("'", "").replace("\n", "")[:-2]
+            data_script = data_script.replace("{key:", "{\"key\":").replace(", hash:", ", \"hash\":").replace(", data:", ", \"data\":").replace(", sideChannel:", ", \"sideChannel\":")
+            data_script = data_script.replace("\"key\": ds:", "\"key\": \"ds: ").replace(", \"hash\":", "\",\"hash\":")
             data_script = json.loads(data_script)
 
             placesData = data_script["data"][1][0]
@@ -39,7 +44,7 @@ def search(query):
             print('================ PLACES DATA ABOVE ============')
 
             try:
-                for i in range(0, len(placesData)):
+                for i in range(len(placesData)):
                     obj = {
                         "id": placesData[i][21][0][1][4],
                         "title": placesData[i][10][5][1],
@@ -67,7 +72,7 @@ def search(query):
                         pass
 
                     try:
-                        obj["address"] = unquote(placesData[i][10][8][0][2]).split("&daddr=")[1].replace("+"," ")
+                        obj["address"] = unquote(placesData[i][10][8][0][2]).split("&daddr=")[1].replace("+", " ")
                     except:
                         pass
 
