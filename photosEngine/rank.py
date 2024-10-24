@@ -26,7 +26,7 @@ def search(query, index, k=4):
 
 loaded_index = load_faiss_index(index_file_path)
 
-query = "a group of friends showing V sign in a tea garden"
+query = "an umbrella"
 # query_embedding = loaded_index.encode([query])
 
 distances, indices = search(query, loaded_index, k=2)

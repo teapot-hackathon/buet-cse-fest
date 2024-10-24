@@ -4,10 +4,14 @@ from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import sys
 import os
+from pydantic import BaseModel
 
 # Add the project root to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from mapScraper.placesCrawlerV2 import search
+from photosEngine.summarize import summarize_photo
+from photosEngine.vectorize import append_to_index
+from photosEngine.vectorize import append_to_json
 
 # Initialize the FastAPI app
 app = FastAPI()
@@ -71,6 +75,42 @@ async def search_route(query: str = Query(..., description="The search query")):
         return JSONResponse(content=flattened_result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+class FileData(BaseModel):
+    filename: str
+    mongo_id: str
+
+
+@app.post("/photo/process")
+async def upload_file():
+    # Validate data (optional)
+    # if not file_data.filename or not file_data.mongo_id:
+    #     raise HTTPException(status_code=400, detail="filename and mongo_id are required.")
+    
+    file_data = {
+        "filename": 'uploads/photo-1729799639506-596868215.jpeg',
+        "mongo_id": 'abcd',
+        "username": 'imtiaz'
+    }
+
+    dir_loc = f'indices/{file_data['username']}'
+    os.makedirs(dir_loc, exist_ok=True)
+
+    index_loc = f'{dir_loc}/index.bin'
+    json_loc = f'{dir_loc}/meta.json'
+
+    print(file_data)
+    summary = summarize_photo(file_data['filename'])
+    append_to_index(index_loc, summary)
+    append_to_json(json_loc, mongo_id)
+    
+    # Process the data
+    return {
+        "message": "File data received successfully.",
+        "filename": file_data["filename"],
+        "mongo_id": file_data['mongo_id']
+    }
     
 if __name__ == '__main__':
     import uvicorn

@@ -1,12 +1,15 @@
 import express, { Request, Response } from "express";
 import multer from "multer";
 import path from "path";
-import { clerkMiddleware } from "@clerk/express";
+import { clerkMiddleware, clerkClient } from "@clerk/express";
 import dotenv from "dotenv";
 import { getCollection } from "./mongo";
 import { ObjectId } from "mongodb";
+import axios from "axios";
 
 dotenv.config();
+
+const PYTHON_BACKEND = "http://localhost:8000";
 
 const CLERK_PUBLIC_KEY = process.env.CLERK_PUBLIC_KEY ?? "";
 const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY ?? "";
@@ -42,26 +45,22 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/", async (req: Request, res: Response) => {
   res.send("Hello, this is the backend!");
 });
 
-app.get(
-  "/protected",
-  clerkMiddleware({
-    publishableKey: CLERK_PUBLIC_KEY,
-    secretKey: CLERK_SECRET_KEY,
-  }),
-  (req: ClerkRequest, res: Response) => {
-    if (!req?.auth?.userId) {
-      res.status(400).send("Need to be authenticated to access this route");
-    }
-
-    // do the auth stuff later after adnan has implemented the frontend with clerk sth sth idk
-
-    res.send("Hello, this is a protected route!");
+app.get("/protected", async (req: any, res: Response) => {
+  if (!req?.auth?.userId) {
+    res.status(400).send("Need to be authenticated to access this route");
+    return;
   }
-);
+
+  const users = await clerkClient.users.getUserList();
+  const data = users.data;
+  res.json({
+    users: data,
+  });
+});
 
 // actual stuff below here
 
@@ -76,7 +75,14 @@ app.get("/photos/search", (req: Request, res: Response) => {
   res.send(`Search for photos with the query: ${searchQuery}`);
 });
 
-app.post("/photos/album", async (req: Request, res: Response) => {
+app.post("/photos/album", async (req: ClerkRequest, res: Response) => {
+  if (!req?.auth?.userId) {
+    res.status(400).send("Need to be authenticated to access this route");
+    return;
+  }
+
+  const userId = req.auth.userId;
+
   const { albumName } = req.body;
 
   if (!albumName) {
@@ -99,7 +105,7 @@ app.post("/photos/album", async (req: Request, res: Response) => {
 
   await collection.insertOne({
     name: albumName,
-    owned_by: null,
+    owned_by: userId,
   });
 
   res.json({
@@ -107,12 +113,17 @@ app.post("/photos/album", async (req: Request, res: Response) => {
   });
 });
 
-app.get("/photos/albums", async (req: Request, res: Response) => {
+app.get("/photos/albums", async (req: ClerkRequest, res: Response) => {
   const collection = await getCollection("albums");
-  const username = "imtiaz"; // get this from clerk maybe? email maybe?
+  if (!req?.auth?.userId) {
+    res.status(400).send("Need to be authenticated to access this route");
+    return;
+  }
+
+  const userId = req.auth.userId;
 
   const albums = await collection.findOne({
-    owned_by: "imtiaz",
+    owned_by: userId,
   });
 
   const result = albums;
@@ -158,9 +169,19 @@ app.post(
     const username = "imtiaz"; // get this from clerk somehow
 
     // at this point i call my python backend to:
-    // 1. generate the summary
-    // 2. create a vector
-    // 3. sucess
+    axios
+      .post(`${PYTHON_BACKEND}/photo/process`, {
+        body: JSON.stringify({
+          filename: photoFile?.filename,
+          mongo_id: "abcd",
+        }),
+        headers: {
+          "Content-Type": "application/json", // Ensures the data is sent as JSON
+        },
+      })
+      .catch((e) => {
+        console.log(e);
+      });
 
     const inserted = await collection.insertOne({
       album_name: albumName,
