@@ -2,7 +2,7 @@ import placesCrawlerV2
 
 if __name__ == "__main__":
     try:
-        results = placesCrawlerV2.search("4 star hotels in sylhet")
+        results = placesCrawlerV2.search("hotels in sylhet with price")
         print(f"Found {len(results)} results")
         print(results[0:10] if results else "No results found")
     except Exception as e:

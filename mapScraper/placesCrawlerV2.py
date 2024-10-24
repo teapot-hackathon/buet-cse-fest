@@ -35,6 +35,9 @@ def search(query):
 
             placesData = data_script["data"][1][0]
 
+            print(placesData)
+            print('================ PLACES DATA ABOVE ============')
+
             try:
                 for i in range(0, len(placesData)):
                     obj = {
@@ -83,10 +86,11 @@ def search(query):
             except TypeError:
                 break
 
-            if len(placesData) < 20:
-                break
-            else:
-                PAGINATION += len(placesData)
+            break
+            # if len(placesData) < 20:
+            #     break
+            # else:
+            #     PAGINATION += len(placesData)
 
     finally:
         session.close()
