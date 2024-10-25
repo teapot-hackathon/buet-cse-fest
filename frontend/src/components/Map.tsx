@@ -43,6 +43,7 @@ function Map({ markers }: Props) {
   }
 
   const bd = [23.7946963098031, 90.40126219418919];
+  console.log(markers);
 
   return (
     <MapContainer>

@@ -4,6 +4,7 @@ import useStore from "../store/store";
 import axios from "axios";
 import type { Location } from "../type";
 import { useState } from "react";
+import { getTag } from "../util";
 
 function Explore() {
   const exQuery = useStore((state) => state.exploreQuery);
@@ -23,20 +24,7 @@ function Explore() {
       setIsSearching(false);
       data = data.map((item: Location) => {
         const [lat, long] = item.coor.split(",");
-        let tag = "";
-
-        const category = item.category.toLowerCase();
-        if (
-          category.includes("hotel") ||
-          category.includes("resort") ||
-          category.includes("accomodation")
-        ) {
-          tag = "Hotel";
-        } else if (category.includes("restaurant")) {
-          tag = "Food";
-        } else {
-          tag = "Attraction";
-        }
+        const tag = getTag(item.category.toLowerCase());
 
         return { ...item, lat: parseFloat(lat), long: parseFloat(long), tag };
       });
