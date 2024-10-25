@@ -21,6 +21,10 @@ from photosEngine.vectorize import append_to_json
 from photosEngine.rank import rank_photos
 from photosEngine.vectorize import generate_ids
 
+from dotenv import load_dotenv
+load_dotenv()
+HUGGING_FACE_TOKEN = os.getenv('HUGGING_FACE_TOKEN')
+
 app = FastAPI()
 
 cache = {}
@@ -277,6 +281,34 @@ async def search_photo(file_data: SearchData):
         })
 
     return return_list
+
+class ModelPrompt(BaseModel):
+    prompt: str
+
+from huggingface_hub import InferenceClient
+client = InferenceClient(api_key=HUGGING_FACE_TOKEN)
+
+
+@app.post("/model/blog")
+async def write_blog(file_data: ModelPrompt):
+    # get the search term
+    if not file_data.prompt:
+        raise HTTPException(status_code=400, detail="prompt is required")
+
+    # run the llama here
+    result = ""
+
+    for message in client.chat_completion(
+        model="meta-llama/Llama-3.2-3B-Instruct",
+        messages=[{"role": "system", "content": "You are my blog writer. I will give you topics and you have to write engaging blogs about them"}, {"role": "user", "content": f"{file_data.prompt}"}],
+        max_tokens=1000,
+        stream=True,
+    ):
+        result = result + (message.choices[0].delta.content)
+
+    return {
+        "content": result
+    }
 
 if __name__ == '__main__':
     import uvicorn

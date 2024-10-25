@@ -28,7 +28,7 @@ def search(query, index, k=4):
 # result = indices.tolist()[0]
 # print(result)
 
-def rank_photos(dir_loc, query, k=4):
+def rank_photos(dir_loc, query, k=10):
     loaded = load_faiss_index(f'{dir_loc}/index.bin')
     result = search(query, loaded, k)
     return result[1].tolist()[0]
