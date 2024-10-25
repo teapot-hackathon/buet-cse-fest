@@ -269,8 +269,15 @@ async def search_photo(file_data: SearchData):
 
     result = rank_photos(f'indices/{file_data.username}', file_data.query)
     ids = generate_ids(f'indices/{file_data.username}/meta.json', result)
-    return ids
     
+    return_list = []
+    for i in ids:
+        return_list.append({
+            '_id': i
+        })
+
+    return return_list
+
 if __name__ == '__main__':
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -106,7 +106,7 @@ app.get(
       });
 
     // Perform the search logic here with `searchQuery`
-    res.json(response);
+    res.json(response?.data);
   }
 );
 
