@@ -100,6 +100,7 @@ export default function Photos() {
         }
       );
       const { data } = res;
+      console.log(data);
       setPictures(pictures.concat(data));
     }
   };

@@ -6,6 +6,8 @@ import type { Location } from "../type";
 import { useState } from "react";
 import { getTag } from "../util";
 
+const BASE_URL = "http://172.28.31.123:8000";
+
 function Explore() {
   const exQuery = useStore((state) => state.exploreQuery);
   const setExQuery = useStore((state) => state.setExploreQuery);
@@ -15,7 +17,7 @@ function Explore() {
 
   const handleSubmit = async () => {
     console.log("hello");
-    const url = `http://172.28.31.123:8000/search?query=${exQuery}`;
+    const url = `${BASE_URL}/search?query=${exQuery}`;
     try {
       setIsSearching(true);
       const res = await axios.get(url);

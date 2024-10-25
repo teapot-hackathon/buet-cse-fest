@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import useStore from "../store/store";
 import { getTag } from "../util";
 
+const BASE_URL = `http://172.28.31.123:8000`;
+
 export default function ItiForm() {
   const [budget, setBudget] = useState("");
   const [destination, setDestination] = useState("");
@@ -22,7 +24,7 @@ export default function ItiForm() {
     const timeDifference = date2.getTime() - date1.getTime();
     const dayDifference = timeDifference / (1000 * 3600 * 24);
 
-    const url = `http://172.28.31.123:8000/itinerary?query=${destination}&type=${budget}&days=${dayDifference}`;
+    const url = `${BASE_URL}/itinerary?query=${destination}&type=${budget}&days=${dayDifference}`;
     const res = await axios.get(url);
     let data = res.data;
     console.log(data);
