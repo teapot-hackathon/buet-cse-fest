@@ -6,9 +6,6 @@ from sentence_transformers import SentenceTransformer
 # Load the model
 model = SentenceTransformer('all-mpnet-base-v2')
 
-# Define the path where the index will be saved
-index_file_path = "faiss_index.index"
-
 def load_faiss_index(file_path):
     """Load the Faiss index from a file."""
     return faiss.read_index(file_path)
@@ -24,11 +21,20 @@ def search(query, index, k=4):
     return distances, indices
 
 
-loaded_index = load_faiss_index(index_file_path)
-
-query = "an umbrella"
+# query = "an umbrella"
 # query_embedding = loaded_index.encode([query])
 
-distances, indices = search(query, loaded_index, k=2)
-result = indices.tolist()[0]
-print(result)
+# distances, indices = search(query, loaded_index, k=2)
+# result = indices.tolist()[0]
+# print(result)
+
+def rank_photos(dir_loc, query, k=4):
+    loaded = load_faiss_index(f'{dir_loc}/index.bin')
+    result = search(query, loaded, k)
+    return result[1].tolist()[0]
+    # query_embedding = loaded.encode([query])
+
+    # distances, indices = search(query_embedding, loaded, k=2)
+    # result = indices.tolist()[0]
+    # print(result)
+    # return result

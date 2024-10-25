@@ -12,6 +12,8 @@ from mapScraper.placesCrawlerV2 import search
 from photosEngine.summarize import summarize_photo
 from photosEngine.vectorize import append_to_index
 from photosEngine.vectorize import append_to_json
+from photosEngine.rank import rank_photos
+from photosEngine.vectorize import generate_ids
 
 # Initialize the FastAPI app
 app = FastAPI()
@@ -80,37 +82,52 @@ async def search_route(query: str = Query(..., description="The search query")):
 class FileData(BaseModel):
     filename: str
     mongo_id: str
+    username: str
 
 
 @app.post("/photo/process")
-async def upload_file():
+async def upload_file(file_data: FileData):
     # Validate data (optional)
-    # if not file_data.filename or not file_data.mongo_id:
-    #     raise HTTPException(status_code=400, detail="filename and mongo_id are required.")
+    if not file_data.filename or not file_data.mongo_id:
+        raise HTTPException(status_code=400, detail="filename and mongo_id are required.")
     
-    file_data = {
-        "filename": 'uploads/photo-1729799639506-596868215.jpeg',
-        "mongo_id": 'abcd',
-        "username": 'imtiaz'
-    }
+    # file_data = {
+    #     "filename": 'uploads/photo-1729799639506-596868215.jpeg',
+    #     "mongo_id": 'abcd',
+    #     "username": 'imtiaz'
+    # }
 
-    dir_loc = f'indices/{file_data['username']}'
+    dir_loc = f'indices/{file_data.username}'
     os.makedirs(dir_loc, exist_ok=True)
 
     index_loc = f'{dir_loc}/index.bin'
     json_loc = f'{dir_loc}/meta.json'
 
     print(file_data)
-    summary = summarize_photo(file_data['filename'])
+    summary = summarize_photo(f'uploads/{file_data.filename}')
     append_to_index(index_loc, summary)
-    append_to_json(json_loc, mongo_id)
+    append_to_json(json_loc, file_data.mongo_id)
     
     # Process the data
     return {
         "message": "File data received successfully.",
-        "filename": file_data["filename"],
-        "mongo_id": file_data['mongo_id']
+        "filename": file_data.filename,
+        "mongo_id": file_data.mongo_id
     }
+
+class SearchData(BaseModel):
+    query: str
+    username: str
+
+@app.post("/photo/search")
+async def search_photo(file_data: SearchData):
+    # get the search term
+    if not file_data.query or not file_data.username:
+        raise HTTPException(status_code=400, detail="query is required and username is required")
+
+    result = rank_photos(f'indices/{file_data.username}', file_data.query)
+    ids = generate_ids(f'indices/{file_data.username}/meta.json', result)
+    return ids
     
 if __name__ == '__main__':
     import uvicorn

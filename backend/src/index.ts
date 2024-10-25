@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import { getCollection } from "./mongo";
 import { ObjectId } from "mongodb";
 import axios from "axios";
+import cors from "cors";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ console.log(CLERK_PUBLIC_KEY);
 console.log(CLERK_SECRET_KEY);
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 interface ClerkRequest extends Request {
@@ -49,113 +51,189 @@ app.get("/", async (req: Request, res: Response) => {
   res.send("Hello, this is the backend!");
 });
 
-app.get("/protected", async (req: any, res: Response) => {
-  if (!req?.auth?.userId) {
-    res.status(400).send("Need to be authenticated to access this route");
-    return;
-  }
+app.get(
+  "/protected",
+  clerkMiddleware({
+    secretKey: CLERK_SECRET_KEY,
+    publishableKey: CLERK_PUBLIC_KEY,
+  }),
+  async (req: any, res: Response) => {
+    console.log(req.auth);
 
-  const users = await clerkClient.users.getUserList();
-  const data = users.data;
-  res.json({
-    users: data,
-  });
-});
+    if (!req?.auth?.userId) {
+      res.status(400).send("Need to be authenticated to access this route");
+      return;
+    }
+
+    const users = await clerkClient.users.getUserList();
+    const data = users.data;
+    res.json({
+      users: data,
+    });
+  }
+);
 
 // actual stuff below here
 
-app.get("/photos/search", (req: Request, res: Response) => {
-  const searchQuery = req.query.q; // 'q' is the name of the query parameter (e.g., ?q=search-term)
+app.get(
+  "/photos/search",
+  clerkMiddleware({
+    secretKey: CLERK_SECRET_KEY,
+    publishableKey: CLERK_PUBLIC_KEY,
+  }),
+  async (req: ClerkRequest, res: Response) => {
+    const searchQuery = req.query.q; // 'q' is the name of the query parameter (e.g., ?q=search-term)
 
-  if (!searchQuery) {
-    res.status(400).send("A search query is required.");
+    if (!req?.auth?.userId) {
+      res.status(400).send("Need to be authenticated to access this route");
+      return;
+    }
+
+    if (!searchQuery) {
+      res.status(400).send("A search query is required.");
+    }
+
+    const userId = req?.auth?.userId;
+
+    // at this point i call my python backend to:
+    const response = await axios
+      .post(`${PYTHON_BACKEND}/photo/search`, {
+        query: searchQuery,
+        username: userId,
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+
+    // Perform the search logic here with `searchQuery`
+    res.json(response);
   }
+);
 
-  // Perform the search logic here with `searchQuery`
-  res.send(`Search for photos with the query: ${searchQuery}`);
-});
+app.post(
+  "/photos/album",
+  clerkMiddleware({
+    secretKey: CLERK_SECRET_KEY,
+    publishableKey: CLERK_PUBLIC_KEY,
+  }),
+  async (req: ClerkRequest, res: Response) => {
+    console.log(req.auth, "<--- req.auth");
 
-app.post("/photos/album", async (req: ClerkRequest, res: Response) => {
-  if (!req?.auth?.userId) {
-    res.status(400).send("Need to be authenticated to access this route");
-    return;
-  }
+    if (!req?.auth?.userId) {
+      res.status(400).send("Need to be authenticated to access this route");
+      return;
+    }
 
-  const userId = req.auth.userId;
+    const userId = req.auth.userId;
 
-  const { albumName } = req.body;
+    const { albumName } = req.body;
 
-  if (!albumName) {
-    res.status(400).json({
-      message: "Album name is required.",
+    if (!albumName) {
+      res.status(400).json({
+        message: "Album name is required.",
+      });
+    }
+
+    const collection = await getCollection("albums");
+
+    const exists = await collection.find({
+      owned_by: userId,
     });
-  }
 
-  const collection = await getCollection("albums");
+    if (!(await exists.toArray()).length) {
+      res.status(400).json({
+        message: "Album already exists",
+      });
+    }
 
-  const exists = await collection.find({
-    owned_by: "imtiaz",
-  });
-
-  if (!(await exists.toArray()).length) {
-    res.status(400).json({
-      message: "Album already exists",
+    await collection.insertOne({
+      name: albumName,
+      owned_by: userId,
     });
+
+    const created_collection = await collection.findOne({
+      name: albumName,
+      owned_by: userId,
+    });
+
+    res.json(created_collection);
   }
+);
 
-  await collection.insertOne({
-    name: albumName,
-    owned_by: userId,
-  });
+app.get(
+  "/photos/album",
+  clerkMiddleware({
+    secretKey: CLERK_SECRET_KEY,
+    publishableKey: CLERK_PUBLIC_KEY,
+  }),
+  async (req: ClerkRequest, res: Response) => {
+    const collection = await getCollection("albums");
+    if (!req?.auth?.userId) {
+      res.status(400).send("Need to be authenticated to access this route");
+      return;
+    }
 
-  res.json({
-    created: true,
-  });
-});
+    const userId = req.auth.userId;
 
-app.get("/photos/albums", async (req: ClerkRequest, res: Response) => {
-  const collection = await getCollection("albums");
-  if (!req?.auth?.userId) {
-    res.status(400).send("Need to be authenticated to access this route");
-    return;
+    const albums = await collection
+      .find({
+        owned_by: userId,
+      })
+      .toArray();
+
+    const result = albums;
+
+    res.json(result);
   }
+);
 
-  const userId = req.auth.userId;
+app.get(
+  "/photos/albums/:albumName",
+  clerkMiddleware({
+    secretKey: CLERK_SECRET_KEY,
+    publishableKey: CLERK_PUBLIC_KEY,
+  }),
+  async (req: ClerkRequest, res: Response) => {
+    const albumName = req.params.albumName;
 
-  const albums = await collection.findOne({
-    owned_by: userId,
-  });
+    if (!albumName) {
+      res.status(400).send("Album name is required.");
+    }
 
-  const result = albums;
+    const collection = await getCollection("photos");
+    if (!req?.auth?.userId) {
+      res.status(400).send("Need to be authenticated to access this route");
+      return;
+    }
 
-  res.json(result);
-});
+    const userId = req.auth.userId;
 
-app.get("/photos/albums/:albumName", async (req: Request, res: Response) => {
-  const albumName = req.params.albumName;
+    const photos = await collection
+      .find({
+        owned_by: userId,
+        album_name: albumName,
+      })
+      .toArray();
 
-  if (!albumName) {
-    res.status(400).send("Album name is required.");
+    res.json(photos);
   }
-
-  const collection = await getCollection("photos");
-  const username = "imtiaz"; // get this from clerk somehow
-
-  const photos = await collection
-    .find({
-      owned_by: username,
-    })
-    .toArray();
-
-  res.json(photos);
-});
+);
 
 app.post(
   "/photos/albums/:albumName",
   upload.single("photo"),
-  async (req: Request, res: Response) => {
+  clerkMiddleware({
+    secretKey: CLERK_SECRET_KEY,
+    publishableKey: CLERK_PUBLIC_KEY,
+  }),
+  async (req: ClerkRequest, res: Response) => {
     const albumName = req.params.albumName; // Get the album name from the URL
     const photoFile = req.file; // Get the uploaded image file
+
+    if (!req?.auth?.userId) {
+      res.status(400).send("Need to be authenticated to access this route");
+      return;
+    }
 
     if (!albumName) {
       res.status(400).send("Album name is required.");
@@ -166,29 +244,25 @@ app.post(
     }
 
     const collection = await getCollection("photos");
-    const username = "imtiaz"; // get this from clerk somehow
-
-    // at this point i call my python backend to:
-    axios
-      .post(`${PYTHON_BACKEND}/photo/process`, {
-        body: JSON.stringify({
-          filename: photoFile?.filename,
-          mongo_id: "abcd",
-        }),
-        headers: {
-          "Content-Type": "application/json", // Ensures the data is sent as JSON
-        },
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    const userId = req.auth.userId;
 
     const inserted = await collection.insertOne({
       album_name: albumName,
       original_name: photoFile?.originalname,
       filepath: photoFile?.path,
-      owned_by: username,
+      owned_by: userId,
     });
+
+    // at this point i call my python backend to:
+    axios
+      .post(`${PYTHON_BACKEND}/photo/process`, {
+        filename: photoFile?.filename,
+        mongo_id: inserted.insertedId,
+        username: userId,
+      })
+      .catch((e) => {
+        console.log(e);
+      });
 
     console.log(inserted.insertedId);
 
