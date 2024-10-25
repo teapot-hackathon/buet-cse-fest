@@ -30,3 +30,8 @@ body {
     display: none !important;
   }
 }
+
+.home {
+  height: calc(100dvh - 80px);
+  background-color: black;
+}

@@ -150,7 +150,7 @@ export default function Photos() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-8 overflow-y-auto">
+      <div className="flex-1 p-8 overflow-y-auto max-w-[1000px] w-[90%] mx-auto">
         {/* Search Bar */}
         <div className="mb-6">
           <div className="relative">
@@ -203,7 +203,7 @@ export default function Photos() {
             )}
 
             {/* Photo Grid (placeholder) */}
-            <div className="flex flex-row flex-wrap gap-4">
+            <div className="flex flex-row flex-wrap gap-6">
               {!pictures.length &&
                 [1, 2, 3, 4, 5, 6].map((i) => (
                   <div
@@ -211,10 +211,10 @@ export default function Photos() {
                     className="bg-gray-200 aspect-square rounded-md"
                   ></div>
                 ))}
-              {pictures.map((picture) => (
+              {pictures?.map((picture) => (
                 <img
                   src={`${BASE_URL}/photos/view/${picture._id}`}
-                  className="w-[100x] h-[100px]"
+                  className="w-[100x] h-[100px] border-2 border-black"
                   key={picture._id}
                 />
               ))}

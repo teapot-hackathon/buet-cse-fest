@@ -38,7 +38,7 @@ function Explore() {
   };
 
   return (
-    <div className="">
+    <div className="py-6">
       <div className="py-1">
         <Searchbar
           text={exQuery}

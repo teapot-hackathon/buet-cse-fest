@@ -33,7 +33,7 @@ const useStore = create<State & Action>((set) => ({
   explorePlaces: [],
   setExplorePlaces: (newPlaces: Location[]) =>
     set(() => ({ explorePlaces: newPlaces })),
-  showSidebar: true,
+  showSidebar: false,
   setShowSidebar: (newShowSidebar: boolean) =>
     set(() => ({ showSidebar: newShowSidebar })),
   itiHotels: [],

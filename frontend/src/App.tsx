@@ -11,6 +11,7 @@ import Itinerary from "./Itinerary/Itinerary";
 import Photos from "./components/Photos";
 import ItiMap from "./components/ItiMap";
 import Blog from "./components/Blog";
+import RequireAuth from "./components/RequireAuth";
 
 function App() {
   return (
@@ -25,34 +26,36 @@ function App() {
           <Route
             path=""
             element={<Home />}
-          >
-            <Route
-              path="/explore"
-              element={<Explore />}
-            />
-            <Route
-              path="/signup"
-              element={<Signup />}
-            />
-            <Route
-              path="/login"
-              element={<Login />}
-            />
-            <Route
-              path="/itinerary"
-              element={<Itinerary />}
-            />
+          />
+          <Route
+            path="/explore"
+            element={<Explore />}
+          />
+          <Route
+            path="/signup"
+            element={<Signup />}
+          />
+          <Route
+            path="/login"
+            element={<Login />}
+          />
+          <Route
+            path="/itinerary"
+            element={<Itinerary />}
+          />
+
+          <Route
+            path="/itinerary-map"
+            element={<ItiMap />}
+          />
+          <Route
+            path="/blog"
+            element={<Blog />}
+          />
+          <Route element={<RequireAuth />}>
             <Route
               path="/photos"
               element={<Photos />}
-            />
-            <Route
-              path="/itinerary-map"
-              element={<ItiMap />}
-            />
-            <Route
-              path="/blog"
-              element={<Blog />}
             />
           </Route>
         </Route>

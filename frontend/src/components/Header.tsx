@@ -52,13 +52,12 @@ export default function Header() {
                 </>
               ) : (
                 <li>
-                  <Link
-                    to="/login"
+                  <button
                     className="px-4 py-2 rounded-md bg-primary-foreground text-primary hover:bg-primary-foreground/90 focus:outline-none focus:ring-2 focus:ring-primary-foreground focus:ring-offset-2 focus:ring-offset-primary font-semibold"
                     onClick={() => clerk.signOut({ redirectUrl: "/" })}
                   >
                     Logout
-                  </Link>
+                  </button>
                 </li>
               )}
               <li></li>
