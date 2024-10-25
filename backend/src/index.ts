@@ -266,10 +266,13 @@ app.post(
 
     console.log(inserted.insertedId);
 
+    const result = await collection.findOne({
+      _id: inserted.insertedId,
+    });
+
+    console.log(result);
     // Assuming the file was successfully uploaded to the 'uploads/' folder
-    res.send(
-      `Photo successfully uploaded to the album: ${albumName}. File path: ${photoFile?.path}`
-    );
+    res.json(result);
   }
 );
 
