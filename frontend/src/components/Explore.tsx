@@ -4,6 +4,9 @@ import useStore from "../store/store";
 import axios from "axios";
 import type { Location } from "../type";
 import { useState } from "react";
+import { getTag } from "../util";
+
+const BASE_URL = "http://172.28.31.123:8000";
 
 function Explore() {
   const exQuery = useStore((state) => state.exploreQuery);
@@ -14,7 +17,7 @@ function Explore() {
 
   const handleSubmit = async () => {
     console.log("hello");
-    const url = `http://172.28.31.123:8000/search?query=${exQuery}`;
+    const url = `${BASE_URL}/search?query=${exQuery}`;
     try {
       setIsSearching(true);
       const res = await axios.get(url);
@@ -23,20 +26,7 @@ function Explore() {
       setIsSearching(false);
       data = data.map((item: Location) => {
         const [lat, long] = item.coor.split(",");
-        let tag = "";
-
-        const category = item.category.toLowerCase();
-        if (
-          category.includes("hotel") ||
-          category.includes("resort") ||
-          category.includes("accomodation")
-        ) {
-          tag = "Hotel";
-        } else if (category.includes("restaurant")) {
-          tag = "Food";
-        } else {
-          tag = "Attraction";
-        }
+        const tag = getTag(item.category.toLowerCase());
 
         return { ...item, lat: parseFloat(lat), long: parseFloat(long), tag };
       });

@@ -1,18 +1,38 @@
+import axios from "axios";
 import React, { useState } from "react";
+import useStore from "../store/store";
+import { getTag } from "../util";
+
+const BASE_URL = `http://172.28.31.123:8000`;
 
 export default function ItiForm() {
   const [budget, setBudget] = useState("");
   const [destination, setDestination] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const setItinerary = useStore((state) => state.setItinerary);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const setChoices = useStore((state) => state.setChoices);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     console.log({ budget, destination, startDate, endDate });
+
+    const date1 = new Date(startDate);
+    const date2 = new Date(endDate);
+    const timeDifference = date2.getTime() - date1.getTime();
+    const dayDifference = timeDifference / (1000 * 3600 * 24);
+
+    const url = `${BASE_URL}/itinerary?query=${destination}&type=${budget}&days=${dayDifference}`;
+    const res = await axios.get(url);
+    let data = res.data;
+    console.log(data);
+    setItinerary(data);
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md border border-gray-300">
+    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md border border-gray-300 my-8 no-print">
       <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
         Plan Your Dream Tour
       </h2>

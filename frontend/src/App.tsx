@@ -9,6 +9,7 @@ import Login from "./components/Login";
 import Sidebar from "./components/Sidebar";
 import Itinerary from "./Itinerary/Itinerary";
 import Photos from "./components/Photos";
+import ItiMap from "./components/ItiMap";
 
 function App() {
   return (
@@ -43,6 +44,10 @@ function App() {
             <Route
               path="/photos"
               element={<Photos />}
+            />
+            <Route
+              path="/itinerary-map"
+              element={<ItiMap />}
             />
           </Route>
         </Route>
