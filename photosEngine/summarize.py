@@ -9,12 +9,6 @@ TOKEN = os.getenv('HUGGING_FACE_TOKEN')
 API_URL = "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large"
 headers = {"Authorization": f"Bearer {TOKEN}"}
 
-def query(filename):
-    with open(filename, "rb") as f:
-        data = f.read()
-    response = requests.post(API_URL, headers=headers, data=data)
-    return response.json()
-
 def wait_for_model_ready():
     while True:
         response = requests.get(API_URL, headers=headers)
@@ -26,7 +20,11 @@ def wait_for_model_ready():
             print("Model is ready.")
             break
 
-wait_for_model_ready()
+def summarize_photo(filename):
+    wait_for_model_ready()
+    with open(filename, "rb") as f:
+        data = f.read()
+    response = requests.post(API_URL, headers=headers, data=data)
+    print(response.json)
+    return response.json()[0]['generated_text']
 
-output = query(f"media/image-10.jpeg")
-print(output)

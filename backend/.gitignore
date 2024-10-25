@@ -1,7 +1,6 @@
-<<<<<<< HEAD
 .env
 node_modules
-=======
 __pycache__
-
->>>>>>> 15e4cc290872a6c78fb4ee2d7485ab299a7431c4
+uploads
+indices
+venv
