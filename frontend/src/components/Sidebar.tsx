@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { Map, Compass, Image, Sparkles } from "lucide-react";
 import useStore from "../store/store";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function Sidebar() {
   const [activeItem, setActiveItem] = useState("home");
   const showSidebar = useStore((state) => state.showSidebar);
+  const location = useLocation();
 
   const menuItems = [
     { id: "itinerary", icon: Map, label: "Itinerary" },
     { id: "explore", icon: Compass, label: "Explore" },
     { id: "photos", icon: Image, label: "Photos" },
-    { id: "content", icon: Sparkles, label: "Content" },
+    { id: "blog", icon: Sparkles, label: "Blog" },
   ];
 
   return (

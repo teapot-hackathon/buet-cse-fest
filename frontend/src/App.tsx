@@ -10,6 +10,7 @@ import Sidebar from "./components/Sidebar";
 import Itinerary from "./Itinerary/Itinerary";
 import Photos from "./components/Photos";
 import ItiMap from "./components/ItiMap";
+import Blog from "./components/Blog";
 
 function App() {
   return (
@@ -48,6 +49,10 @@ function App() {
             <Route
               path="/itinerary-map"
               element={<ItiMap />}
+            />
+            <Route
+              path="/blog"
+              element={<Blog />}
             />
           </Route>
         </Route>

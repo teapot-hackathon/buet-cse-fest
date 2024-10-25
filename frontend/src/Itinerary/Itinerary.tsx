@@ -15,6 +15,7 @@ const Day = ({ day }) => {
         <div className="mb-4">
           <h3 className="text-lg font-semibold">Morning:</h3>
           <p className="text-gray-600">{day.morning.title}</p>
+          <p className="text-gray-600">{day.morning.place.address}</p>
         </div>
         <div className="mb-4">
           <h3 className="text-lg font-semibold">Afternoon:</h3>
@@ -78,32 +79,36 @@ const TravelItinerary = () => {
 
 function Itinerary() {
   const [showForm, setShowForm] = useState(true);
-  const choices = useStore((state) => state.choices);
-  const hotels = choices.filter((choice) => choice.tag == "Hotel");
-  const restaurants = choices.filter((choice) => choice.tag == "Food");
-  const attractions = choices.filter((choice) => choice.tag == "Attraction");
   const itinerary = useStore((state) => state.itinerary);
-  // const url =
-  //   "https://api.openweathermap.org/data/3.0/onecall/day_summary?lat=23.7946963098031&lon=90.40126219418919&date=2025-05-22&tz=+06:00&appid=34fbec596ce6ee0a4ef569154cebd76e&units=metric";
 
-  // const fetcher = async () => {
-  //   const response = await fetch(url, { mode: "cors" });
-  //   const data = await response.json();
-  //   console.log(data);
-  // };
-  const show = restaurants.length || hotels.length || attractions.length;
   return (
     <div className="flex flex-col justify-center gap-4">
-      <div className="">
-        <Link
-          to="/itinerary-map"
-          className="w-[40px] bg-black text-white py-3 px-2"
-        >
-          Show on Map
-        </Link>
+      <div className="flex justify-center gap-4">
+        {itinerary.query && (
+          <>
+            <Link
+              to="/blog"
+              className=" bg-black text-white py-3 px-3 no-print font-semibold"
+            >
+              Generate a blog
+            </Link>
+            <Link
+              to="/itinerary-map"
+              className=" bg-purple-600 text-white py-3 px-3 no-print font-semibold"
+            >
+              Show on Map
+            </Link>
+            <button
+              className="bg-black text-white py-3 px-3 no-print font-semibold"
+              onClick={() => setShowForm(true)}
+            >
+              Generate Again
+            </button>
+          </>
+        )}
       </div>
       <div className="flex justify-center items-start gap-x-4">
-        {showForm && <ItiForm />}
+        {!itinerary.query && <ItiForm set={setShowForm} />}
         {itinerary.query && <TravelItinerary />}
       </div>
     </div>

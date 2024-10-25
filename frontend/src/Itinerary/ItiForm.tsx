@@ -2,14 +2,16 @@ import axios from "axios";
 import React, { useState } from "react";
 import useStore from "../store/store";
 import { getTag } from "../util";
+import { Circles } from "react-loader-spinner";
 
 const BASE_URL = `http://172.28.31.123:8000`;
 
-export default function ItiForm() {
+export default function ItiForm({ set }) {
   const [budget, setBudget] = useState("");
   const [destination, setDestination] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [searching, setSearching] = useState(false);
   const setItinerary = useStore((state) => state.setItinerary);
 
   const setChoices = useStore((state) => state.setChoices);
@@ -18,6 +20,7 @@ export default function ItiForm() {
     e.preventDefault();
 
     console.log({ budget, destination, startDate, endDate });
+    setSearching(true);
 
     const date1 = new Date(startDate);
     const date2 = new Date(endDate);
@@ -29,6 +32,8 @@ export default function ItiForm() {
     let data = res.data;
     console.log(data);
     setItinerary(data);
+    setSearching(false);
+    set(false);
   };
 
   return (
@@ -114,12 +119,26 @@ export default function ItiForm() {
           </div>
         </div>
 
-        <button
-          type="submit"
-          className="w-full bg-black font-semibold text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out"
-        >
-          Plan My Tour
-        </button>
+        {searching ? (
+          <div className="flex justify-center items-center">
+            <Circles
+              height="35"
+              width="35"
+              color="#9333ea"
+              ariaLabel="circles-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+              visible={true}
+            />
+          </div>
+        ) : (
+          <button
+            type="submit"
+            className="w-full bg-black font-semibold text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out"
+          >
+            Plan My Tour
+          </button>
+        )}
       </form>
     </div>
   );
